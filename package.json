@@ -1,0 +1,19 @@
+{
+  "name": "url-shortener-analytics",
+  "version": "1.0.0",
+  "description": "Premium URL Shortener with Analytics built using Node.js, Express, SQLite, and Vanilla HTML/CSS/JS",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  }
+}

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trimm | Premium URL Shortener & Analytics</title>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- ChartJS for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  
+  <div id="app">
+    <!-- Header/Navigation (Dynamic display) -->
+    <header id="app-header" style="display: none;">
+      <div class="nav-container">
+        <div class="logo cursor-pointer" id="nav-logo">
+          <div class="logo-icon"><i class="fa-solid fa-link"></i></div>
+          <span>Trimm</span>
+        </div>
+        <div class="nav-links">
+          <span class="nav-item active" id="nav-dashboard-btn"><i class="fa-solid fa-chart-simple mr-2"></i>Dashboard</span>
+          <span class="nav-item user-badge" id="user-display">
+            <span></span><span id="user-email-text">user@example.com</span>
+          </span>
+          <span class="nav-item" id="logout-btn"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      
+      <!-- VIEW 1: AUTHENTICATION (Login / Signup) -->
+      <section id="auth-view" class="auth-wrapper" style="display: none;">
+        <div class="card">
+          <div class="auth-header">
+            <div class="logo flex-center" style="font-size: 2.5rem; margin-bottom: 1rem;">
+              <div class="logo-icon" style="width: 45px; height: 45px; font-size: 1.6rem;"><i class="fa-solid fa-link"></i></div>
+              <span>Trimm</span>
+            </div>
+            <h2 class="auth-title" id="auth-title-text">Welcome Back</h2>
+            <p class="auth-subtitle" id="auth-subtitle-text">Enter your details to manage your links</p>
+          </div>
+
+          <form id="auth-form" novalidate>
+            <div class="form-group">
+              <label for="auth-email">Email Address</label>
+              <input type="email" id="auth-email" placeholder="name@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="auth-password">Password</label>
+              <input type="password" id="auth-password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="auth-submit-btn">
+              <i class="fa-solid fa-right-to-bracket mr-2"></i>Sign In
+            </button>
+          </form>
+
+          <p class="auth-toggle" id="auth-toggle-msg">
+            Don't have an account? <span id="auth-toggle-btn">Sign Up</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- VIEW 2: DASHBOARD (Link CRUD & List) -->
+      <section id="dashboard-view" class="dashboard-grid" style="display: none;">
+        <!-- Left Column: Shorten Form & Global Stats -->
+        <div class="left-column" style="display: flex; flex-direction: column; gap: 2rem;">
+          <div class="card link-form-card">
+            <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-wand-magic-sparkles mr-2" style="color: var(--primary);"></i>Shorten URL</h3>
+            <form id="shorten-form">
+              <div class="form-group">
+                <label for="long-url-input">Destination URL</label>
+                <input type="text" id="long-url-input" placeholder="https://example.com/very-long-page-link" required>
+              </div>
+              <div class="form-group">
+                <label for="custom-code-input">Custom Alias (Optional)</label>
+                <input type="text" id="custom-code-input" placeholder="my-custom-slug">
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i class="fa-solid fa-bolt mr-2"></i>Generate Link
+              </button>
+            </form>
+          </div>
+
+          <!-- Stats Summary Panel -->
+          <div class="stats-overview">
+            <div class="stat-card">
+              <span class="stat-label">Total Links</span>
+              <span class="stat-value" id="stat-total-links">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Total Clicks</span>
+              <span class="stat-value glow" id="stat-total-clicks">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Link Table List -->
+        <div class="right-column">
+          <div class="card links-list-card" style="min-height: 480px;">
+            <div class="list-header">
+              <h3><i class="fa-solid fa-list-ul mr-2" style="color: var(--secondary);"></i>Your Links</h3>
+              <button class="btn btn-secondary btn-sm" id="refresh-links-btn"><i class="fa-solid fa-arrows-rotate"></i></button>
+            </div>
+            
+            <div class="table-wrapper">
+              <table id="links-table">
+                <thead>
+                  <tr>
+                    <th>Short Link</th>
+                    <th>Destination</th>
+                    <th style="text-align: center;">Clicks</th>
+                    <th style="text-align: center;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="links-list-tbody">
+                  <!-- JS Dynamic Content Injection -->
+                  <tr>
+                    <td colspan="4">
+                      <div class="empty-state">
+                        <i class="fa-solid fa-spinner fa-spin empty-icon"></i>
+                        <p>Loading links...</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: LINK ANALYTICS VIEW -->
+      <section id="analytics-view" style="display: none;">
+        <div class="analytics-header">
+          <div class="analytics-title-group">
+            <button class="btn btn-secondary btn-sm" id="back-to-dashboard-btn" style="width: fit-content; margin-bottom: 1rem;">
+              <i class="fa-solid fa-arrow-left mr-2"></i>Back to Dashboard
+            </button>
+            <h2 id="analytics-short-code">/r/loading</h2>
+            <p class="analytics-subtitle" id="analytics-long-url">Loading destination URL...</p>
+          </div>
+          <div class="analytics-actions" style="display: flex; gap: 1rem;">
+            <button class="btn btn-secondary" id="analytics-qr-btn"><i class="fa-solid fa-qrcode mr-2"></i>QR Code</button>
+            <button class="btn btn-primary" id="analytics-copy-btn"><i class="fa-solid fa-copy mr-2"></i>Copy Link</button>
+          </div>
+        </div>
+
+        <!-- Timeline Chart Card -->
+        <div class="card chart-card" style="margin-bottom: 2rem;">
+          <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-chart-line mr-2" style="color: var(--primary);"></i>Clicks Over Time (Last 7 Days)</h3>
+          <div class="chart-container">
+            <canvas id="clicks-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Pie Charts Breakdown Grid -->
+        <div class="analytics-grid">
+          <!-- Breakdowns: Browser and Device -->
+          <div class="analytics-sub-grid">
+            <div class="card breakdown-card">
+              <h3><i class="fa-solid fa-globe mr-2" style="color: var(--accent);"></i>Browsers</h3>
+              <div class="breakdown-list" id="browser-breakdown-list">
+                <!-- Dynamically Injected -->
+              </div>
+            </div>
+            
+            <div class="card breakdown-card">
+              <h3><i class="fa-solid fa-mobile-screen mr-2" style="color: var(--secondary);"></i>Devices</h3>
+              <div class="breakdown-list" id="device-breakdown-list">
+                <!-- Dynamically Injected -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Referrer List -->
+          <div class="card breakdown-card">
+            <h3><i class="fa-solid fa-compass mr-2" style="color: var(--success);"></i>Top Referrers</h3>
+            <div class="breakdown-list" id="referrer-breakdown-list">
+              <!-- Dynamically Injected -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Visits Log Table -->
+        <div class="card" style="margin-top: 2rem;">
+          <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-history mr-2" style="color: var(--text-secondary);"></i>Recent Visits Log</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Browser</th>
+                  <th>Device</th>
+                  <th>Referrer</th>
+                </tr>
+              </thead>
+              <tbody id="recent-visits-tbody">
+                <!-- Dynamically Injected -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Global Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- MODAL 1: EDIT ALIAS MODAL -->
+    <div class="modal-overlay" id="edit-modal" style="display: none;">
+      <div class="modal-content">
+        <button class="close-modal" id="close-edit-modal-btn">&times;</button>
+        <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-pen-to-square mr-2"></i>Edit Link Alias</h3>
+        <form id="edit-alias-form">
+          <input type="hidden" id="edit-link-id">
+          <div class="form-group">
+            <label for="edit-alias-input">Short Link Alias</label>
+            <input type="text" id="edit-alias-input" placeholder="new-short-slug" required>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancel-edit-modal-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 2: QR CODE MODAL -->
+    <div class="modal-overlay" id="qr-modal" style="display: none;">
+      <div class="modal-content" style="max-width: 400px;">
+        <button class="close-modal" id="close-qr-modal-btn">&times;</button>
+        <h3 style="margin-bottom: 1rem; text-align: center;"><i class="fa-solid fa-qrcode mr-2"></i>QR Code</h3>
+        <div class="qr-container">
+          <div class="qr-image" id="qr-code-display">
+            <!-- Dynamic QR Code Injected via fetch/lib or simple Google QR Code Generator API -->
+          </div>
+          <p class="text-center" style="font-size: 0.9rem; color: var(--text-secondary);" id="qr-url-text"></p>
+          <button class="btn btn-secondary btn-sm" id="download-qr-btn"><i class="fa-solid fa-download mr-2"></i>Download Image</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Client-side Logic Script -->
+  <script src="/js/app.js"></script>
+</body>
+</html>
